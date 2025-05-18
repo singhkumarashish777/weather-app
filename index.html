@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weather App - India Cities</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+    .container {
+      background: rgba(0,0,0,0.4);
+      padding: 20px;
+      border-radius: 12px;
+      width: 320px;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+    }
+    input {
+      color: black;
+    }
+    #errorMsg {
+      color: #ffdddd;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Get Weather - Select City</h2>
+    <input type="text" id="cityInput" placeholder="Enter city (e.g., Mumbai)" />
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div id="weatherResult" style="display:none; margin-top: 15px;">
+      <h3 id="cityName"></h3>
+      <p id="description"></p>
+      <p>Temp: <span id="temperature"></span> °C</p>
+      <p>Humidity: <span id="humidity"></span>%</p>
+      <p>Wind Speed: <span id="wind"></span> km/h</p>
+    </div>
+
+    <p id="errorMsg"></p>
+  </div>
+
+<script>
+  const allowedCities = ["Kolhapur","Chhapra","Delhi","Lucknow","Patna","Amritsar","Kanpur","Mumbai"];
+  const apiKey = "YOUR_API_KEY"; // Replace with your OpenWeatherMap API key
+
+  async function getWeather() {
+    const cityInput = document.getElementById('cityInput').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+    const weatherResult = document.getElementById('weatherResult');
+
+    if (!allowedCities.includes(cityInput)) {
+      weatherResult.style.display = 'none';
+      errorMsg.textContent = "Please enter a valid city from the list.";
+      return;
+    }
+    errorMsg.textContent = ""; // Clear previous error
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&appid=${apiKey}&units=metric`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.status === 200) {
+        document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
+        document.getElementById('description').textContent = data.weather[0].description;
+        document.getElementById('temperature').textContent = data.main.temp;
+        document.getElementById('humidity').textContent = data.main.humidity;
+        document.getElementById('wind').textContent = (data.wind.speed * 3.6).toFixed(1);
+
+        weatherResult.style.display = 'block';
+      } else {
+        weatherResult.style.display = 'none';
+        errorMsg.textContent = "City not found in API.";
+      }
+    } catch (err) {
+      weatherResult.style.display = 'none';
+      errorMsg.textContent = "Error fetching weather data.";
+    }
+  }
+</script>
+</body>
+</html>
